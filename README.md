@@ -1,6 +1,6 @@
 # 💸 Love on a Budget
 ### How Socioeconomic Status Shapes Dating App Success
-**WIA1006/WID3006 Machine Learning | Group Assignment | Sem 2, 2025/2026**
+**WIA1006 Machine Learning | Group Assignment | Sem 2, 2025/2026**
 
 ---
 
