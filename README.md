@@ -17,6 +17,54 @@ The dashboard is a **React + TypeScript + Vite** app (in `frontend/`) that runs 
 trained XGBoost model **directly in the browser** via ONNX (`onnxruntime-web`) — no
 Python server is needed at runtime.
 
+---
+
+## 🚀 Quick Start (for teammates)
+
+If you just want to **run the dashboard on your computer**, this is all you need.
+The trained model is already committed to the repo (`frontend/public/model/model.onnx`),
+so you do **not** need Python, Colab, or the ONNX export steps below.
+
+### Prerequisites
+- [**Node.js 18+**](https://nodejs.org/) — that's it. Check with `node -v`.
+
+### Steps
+
+```bash
+# 1. Clone the repo (or git pull if you already have it)
+git clone https://github.com/dejettss/WIA1006-LoveBudget.git
+cd WIA1006-LoveBudget
+
+# 2. Go into the frontend folder
+cd frontend
+
+# 3. Install dependencies (first time only — takes a minute)
+npm install
+
+# 4. Start the dev server
+npm run dev
+```
+
+> **Windows note:** the commands above work the same in PowerShell, Command Prompt,
+> or Git Bash.
+
+Then open the URL it prints (default **http://localhost:5173**) in your browser.
+To stop the server, press `Ctrl+C` in the terminal.
+
+That's it — skip straight to **[Step 4 — Use the dashboard](#step-4--use-the-dashboard)** below.
+
+### Troubleshooting
+- **`npm` / `node` not recognized** → install Node.js from the link above and reopen your terminal.
+- **Port 5173 already in use** → Vite will automatically pick the next free port; use whatever URL it prints.
+- **Blank page / model error** → make sure you pulled the latest `main` so `frontend/public/model/model.onnx` exists.
+
+---
+
+## Re-generating the model (optional — only if you change the ML notebook)
+
+The steps below are **only needed if you retrain the model**. For just running the
+dashboard, use the Quick Start above instead.
+
 ### Prerequisites
 - Node.js 18+ (to run the React app)
 - Python 3.9+ (only needed to re-generate / re-export the model)
@@ -69,6 +117,7 @@ Open the printed URL (default `http://localhost:5173`).
 
 ---
 
+<a id="step-4--use-the-dashboard"></a>
 ### Step 4 — Use the dashboard
 
 1. Fill in your details across the three tabs:

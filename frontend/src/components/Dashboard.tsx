@@ -1,6 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { Sparkles, Info, Loader2 } from "lucide-react";
 import { loadModel, predict, type RawInputs, type Prediction } from "@/lib/model";
+
+/* Scroll a target Y into view. Uses native smooth scrolling when the tab is
+   visible (foreground); falls back to an instant jump when the tab is hidden
+   or the engine throttles rAF-driven smooth scrolls. */
+function scrollToY(targetY: number) {
+  if (document.hidden) {
+    window.scrollTo(0, targetY);
+  } else {
+    window.scrollTo({ top: targetY, behavior: "smooth" });
+  }
+}
 
 /* ── Small styled primitives ──────────────────────────────────────────────── */
 
@@ -122,6 +134,8 @@ export default function Dashboard() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [predicting, setPredicting] = useState(false);
   const [result, setResult] = useState<Prediction | null>(null);
+  const [predCount, setPredCount] = useState(0); // bumps each prediction → re-animates result
+  const resultRef = useRef<HTMLDivElement>(null);
 
   // UI-only fields (dropped by the model, kept for fidelity with the assignment)
   const [incomeBracket, setIncomeBracket] = useState("Middle");
@@ -160,16 +174,30 @@ export default function Dashboard() {
 
   async function onPredict() {
     setPredicting(true);
-    setResult(null);
+    setLoadError(null);
     try {
       const p = await predict(inputs);
       setResult(p);
+      setPredCount((c) => c + 1); // force the result to re-animate, even if the tier is unchanged
     } catch (e) {
       setLoadError(String(e));
     } finally {
       setPredicting(false);
     }
   }
+
+  // Scroll the (re)prediction into view so it's obvious a new result was produced.
+  // Deferred a frame so the freshly (re)mounted result node is laid out first.
+  useEffect(() => {
+    if (predCount === 0) return;
+    const id = setTimeout(() => {
+      const el = resultRef.current;
+      if (!el) return;
+      const top = window.scrollY + el.getBoundingClientRect().top - 16;
+      scrollToY(top);
+    }, 90);
+    return () => clearTimeout(id);
+  }, [predCount]);
 
   const opt = (k: string, fallback: string[]) => cats[k] ?? fallback;
 
@@ -292,7 +320,14 @@ export default function Dashboard() {
 
       {/* Result */}
       {result && (
-        <div className="mt-8 space-y-5">
+        <motion.div
+          ref={resultRef}
+          key={predCount}
+          initial={{ opacity: 0, scale: 0.97, y: 12 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+          className="mt-8 space-y-5 scroll-mt-6"
+        >
           <Card>
             <h2
               className="font-serif-display text-center text-4xl font-bold"
@@ -356,7 +391,7 @@ export default function Dashboard() {
               predictive.
             </p>
           </Card>
-        </div>
+        </motion.div>
       )}
     </div>
   );
