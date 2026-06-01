@@ -11,6 +11,135 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
+# ─── Romantic / elegant styling ────────────────────────────────────────────────
+st.markdown(
+    """
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
+    /* Soft blush gradient canvas */
+    [data-testid="stAppViewContainer"] {
+        background: linear-gradient(165deg, #FBF6F2 0%, #FCEFE9 45%, #F6E7E1 100%);
+        background-attachment: fixed;
+    }
+    [data-testid="stHeader"] { background: transparent; }
+
+    /* Generous, centred reading column */
+    .block-container {
+        max-width: 760px;
+        padding-top: 3.2rem;
+        padding-bottom: 4.5rem;
+    }
+
+    /* Base typography — refined serif */
+    html, body, [data-testid="stAppViewContainer"],
+    .stMarkdown, p, label, span, li,
+    [data-baseweb="select"], input, textarea {
+        font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+        font-size: 1.06rem;
+        color: #4A3B3D;
+    }
+
+    /* Editorial serif headings */
+    h1, h2, h3, h4 {
+        font-family: 'Playfair Display', Georgia, serif !important;
+        color: #5A3E43 !important;
+        letter-spacing: 0.3px;
+        font-weight: 600;
+    }
+    h1 {
+        font-size: 2.7rem !important;
+        font-weight: 700 !important;
+        line-height: 1.15;
+        margin-bottom: 0.1rem;
+    }
+    /* Subtitle / subheader in italic for an editorial feel */
+    h2, h3 { margin-top: 1.6rem; }
+    .stAppViewContainer h1 + div p,
+    [data-testid="stHeading"] + [data-testid="stHeading"] h3 {
+        font-style: italic;
+    }
+
+    /* Gold hairline dividers */
+    hr {
+        border: none !important;
+        height: 1px !important;
+        background: linear-gradient(90deg, transparent, #C2A86B 50%, transparent) !important;
+        margin: 2.2rem 0 !important;
+        opacity: 0.9;
+    }
+
+    /* Section headings get a small gold ornament */
+    [data-testid="stMarkdownContainer"] h3 {
+        border-bottom: 1px solid rgba(194, 168, 107, 0.35);
+        padding-bottom: 0.4rem;
+    }
+
+    /* Primary action button — rose, pill-shaped, soft glow */
+    .stButton > button {
+        background: linear-gradient(135deg, #C97A88 0%, #B5697A 100%);
+        color: #FFF8F5;
+        border: none;
+        border-radius: 999px;
+        padding: 0.8rem 2rem;
+        font-family: 'Playfair Display', serif;
+        font-size: 1.15rem;
+        letter-spacing: 0.4px;
+        box-shadow: 0 6px 20px rgba(181, 105, 122, 0.32);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+    .stButton > button:hover {
+        background: linear-gradient(135deg, #B5697A 0%, #9E5A63 100%);
+        box-shadow: 0 9px 26px rgba(158, 90, 99, 0.42);
+        transform: translateY(-1px);
+        color: #FFF8F5;
+    }
+    .stButton > button:active { transform: translateY(0); }
+
+    /* Inputs — soft rounded with blush borders */
+    [data-baseweb="select"] > div,
+    [data-baseweb="input"] > div {
+        border-radius: 10px;
+        border-color: #E6D2C8 !important;
+        background: #FFFFFF;
+    }
+
+    /* Expander as a quiet ivory card */
+    [data-testid="stExpander"] {
+        border: 1px solid #EAD9CF;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.65);
+        box-shadow: 0 4px 14px rgba(90, 62, 67, 0.05);
+    }
+
+    /* Metric cards with a gold edge */
+    [data-testid="stMetric"] {
+        background: #FFFFFF;
+        border: 1px solid #EFE0D6;
+        border-left: 3px solid #C2A86B;
+        border-radius: 14px;
+        padding: 1rem 1.2rem;
+        box-shadow: 0 4px 14px rgba(90, 62, 67, 0.06);
+    }
+    [data-testid="stMetricValue"] {
+        font-family: 'Playfair Display', serif;
+        color: #5A3E43;
+    }
+
+    /* Result alert boxes — softened, rounded */
+    [data-testid="stAlert"] {
+        border-radius: 14px;
+        border: none;
+        box-shadow: 0 4px 16px rgba(90, 62, 67, 0.07);
+    }
+
+    /* Captions a touch more refined */
+    [data-testid="stCaptionContainer"] { font-style: italic; opacity: 0.85; }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 # ─── Load model artifacts ──────────────────────────────────────────────────────
 REQUIRED_FILES = ["best_model.pkl", "scaler.pkl", "feature_names.pkl"]
 missing = [f for f in REQUIRED_FILES if not os.path.exists(f)]
