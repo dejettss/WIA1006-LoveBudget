@@ -1,6 +1,10 @@
-streamlit>=1.35.0
-pandas>=2.0.0
+# Python deps for re-exporting the model to ONNX (see export_onnx.py).
+# The dashboard itself is now the React app in frontend/ — it needs no Python at runtime.
 numpy>=1.24.0
+pandas>=2.0.0
 scikit-learn>=1.3.0
 xgboost>=2.0.0
 joblib>=1.3.0
+onnx>=1.16.0
+onnxmltools>=1.12.0
+onnxruntime>=1.18.0

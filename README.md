@@ -13,8 +13,13 @@ The interactive dashboard lets anyone input their profile details and get a pred
 
 ## Running the Dashboard
 
+The dashboard is a **React + TypeScript + Vite** app (in `frontend/`) that runs the
+trained XGBoost model **directly in the browser** via ONNX (`onnxruntime-web`) — no
+Python server is needed at runtime.
+
 ### Prerequisites
-- Python 3.9 or newer
+- Node.js 18+ (to run the React app)
+- Python 3.9+ (only needed to re-generate / re-export the model)
 
 ---
 
@@ -33,48 +38,45 @@ files.download('scaler.pkl')
 files.download('feature_names.pkl')
 ```
 
-4. Move the 3 downloaded files into the root of this repo:
-
-```
-WIA1006-LoveBudget/
-├── app.py
-├── requirements.txt
-├── love_on_a_budget_+_rev1.ipynb
-├── best_model.pkl        ← place here
-├── scaler.pkl            ← place here
-└── feature_names.pkl     ← place here
-```
+4. Move the 3 downloaded files into the root of this repo (`best_model.pkl`,
+   `scaler.pkl`, `feature_names.pkl`).
 
 ---
 
-### Step 2 — Install dependencies
+### Step 2 — Export the model to ONNX
 
-Open a terminal inside the repo folder and run:
+Convert the trained model so the browser can run it. From the repo root:
 
 ```bash
 pip install -r requirements.txt
+python export_onnx.py
 ```
+
+This writes `frontend/public/model/model.onnx` and `metadata.json`, and verifies the
+ONNX output matches the original model.
 
 ---
 
 ### Step 3 — Launch the dashboard
 
 ```bash
-streamlit run app.py
+cd frontend
+npm install
+npm run dev
 ```
 
-The dashboard will open automatically in your browser at `http://localhost:8501`.
+Open the printed URL (default `http://localhost:5173`).
 
 ---
 
 ### Step 4 — Use the dashboard
 
-1. Fill in your details across the three sections:
+1. Fill in your details across the three tabs:
    - **About You** — gender, orientation, location, income, education
-   - **App Behaviour** — daily usage, swipe ratio, active hour, time of day
-   - **Profile & Engagement** — likes, matches, photos, bio length, messages, emoji rate
-2. Click **🔮 Predict My Success Tier**
-3. Your predicted tier and probability breakdown will appear below
+   - **App Habits** — daily usage, swipe ratio, active hour, time of day
+   - **Profile** — likes, matches, photos, bio length, messages, emoji rate
+2. Click **Predict My Success Tier**
+3. Your predicted tier and probability breakdown appear below.
 
 To stop the server, press `Ctrl+C` in the terminal.
 
@@ -82,14 +84,17 @@ To stop the server, press `Ctrl+C` in the terminal.
 
 ## Project Structure
 
-| File | Description |
+| Path | Description |
 |------|-------------|
-| `app.py` | Streamlit dashboard |
-| `requirements.txt` | Python dependencies |
+| `frontend/` | React + TypeScript + Vite dashboard (Tailwind, shadcn structure) |
+| `frontend/src/components/Dashboard.tsx` | The dashboard UI |
+| `frontend/src/lib/model.ts` | In-browser ONNX inference + preprocessing |
+| `frontend/src/components/ui/background-gradient-animation.tsx` | Animated gradient background |
+| `frontend/public/model/` | Exported `model.onnx` + `metadata.json` |
+| `export_onnx.py` | Converts the `.pkl` model to ONNX for the browser |
+| `requirements.txt` | Python deps (only for the ONNX export) |
 | `love_on_a_budget_+_rev1.ipynb` | Full ML notebook (run in Google Colab) |
-| `best_model.pkl` | Trained XGBoost model *(generate from notebook)* |
-| `scaler.pkl` | Fitted StandardScaler *(generate from notebook)* |
-| `feature_names.pkl` | Training feature column names *(generate from notebook)* |
+| `best_model.pkl` / `scaler.pkl` / `feature_names.pkl` | Trained model artifacts *(generate from notebook)* |
 
 ---
 

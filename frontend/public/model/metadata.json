@@ -1,0 +1,119 @@
+{
+  "modelFeatureOrder": [
+    "app_usage_time_min",
+    "swipe_right_ratio",
+    "likes_received",
+    "mutual_matches",
+    "profile_pics_count",
+    "bio_length",
+    "message_sent_count",
+    "emoji_usage_rate",
+    "last_active_hour",
+    "gender_Female",
+    "gender_Genderfluid",
+    "gender_Male",
+    "gender_Non-binary",
+    "gender_Prefer Not to Say",
+    "gender_Transgender",
+    "sexual_orientation_Asexual",
+    "sexual_orientation_Bisexual",
+    "sexual_orientation_Demisexual",
+    "sexual_orientation_Gay",
+    "sexual_orientation_Lesbian",
+    "sexual_orientation_Pansexual",
+    "sexual_orientation_Queer",
+    "sexual_orientation_Straight",
+    "location_type_Metro",
+    "location_type_Remote Area",
+    "location_type_Rural",
+    "location_type_Small Town",
+    "location_type_Suburban",
+    "location_type_Urban",
+    "swipe_time_of_day_After Midnight",
+    "swipe_time_of_day_Afternoon",
+    "swipe_time_of_day_Early Morning",
+    "swipe_time_of_day_Evening",
+    "swipe_time_of_day_Late Night",
+    "swipe_time_of_day_Morning"
+  ],
+  "numericScaling": {
+    "app_usage_time_min": {
+      "mean": 149.9124,
+      "scale": 86.989651374402
+    },
+    "swipe_right_ratio": {
+      "mean": 0.5006554,
+      "scale": 0.19746616026762662
+    },
+    "likes_received": {
+      "mean": 99.52604,
+      "scale": 57.99621885880492
+    },
+    "mutual_matches": {
+      "mean": 13.87028,
+      "scale": 9.10552429690899
+    },
+    "profile_pics_count": {
+      "mean": 2.98772,
+      "scale": 1.9967596754742423
+    },
+    "bio_length": {
+      "mean": 250.1744,
+      "scale": 144.7995475981883
+    },
+    "message_sent_count": {
+      "mean": 50.07194,
+      "scale": 29.167708251359073
+    },
+    "emoji_usage_rate": {
+      "mean": 0.28620540000000005,
+      "scale": 0.16004029183564994
+    },
+    "last_active_hour": {
+      "mean": 11.5218,
+      "scale": 6.920404956359129
+    }
+  },
+  "categories": {
+    "gender": [
+      "Female",
+      "Genderfluid",
+      "Male",
+      "Non-binary",
+      "Prefer Not to Say",
+      "Transgender"
+    ],
+    "sexual_orientation": [
+      "Asexual",
+      "Bisexual",
+      "Demisexual",
+      "Gay",
+      "Lesbian",
+      "Pansexual",
+      "Queer",
+      "Straight"
+    ],
+    "location_type": [
+      "Metro",
+      "Remote Area",
+      "Rural",
+      "Small Town",
+      "Suburban",
+      "Urban"
+    ],
+    "swipe_time_of_day": [
+      "After Midnight",
+      "Afternoon",
+      "Early Morning",
+      "Evening",
+      "Late Night",
+      "Morning"
+    ]
+  },
+  "classLabels": {
+    "0": "Low",
+    "1": "Mid",
+    "2": "High"
+  },
+  "probaOutputName": "probabilities"
+}
