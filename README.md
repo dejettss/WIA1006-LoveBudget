@@ -19,7 +19,7 @@ Python server is needed at runtime.
 
 ---
 
-## 🚀 Quick Start (for teammates)
+## 🚀 Quick Start 
 
 If you just want to **run the dashboard on your computer**, this is all you need.
 The trained model is already committed to the repo (`frontend/public/model/model.onnx`),
