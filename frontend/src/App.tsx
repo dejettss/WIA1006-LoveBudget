@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation";
+import HomePage from "@/pages/HomePage";
 import Dashboard from "@/components/Dashboard";
 import TeamPage from "@/pages/TeamPage";
 import TeamMenu from "@/components/TeamMenu";
@@ -17,7 +18,8 @@ function AnimatedRoutes() {
       transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
     >
       <Routes location={location}>
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/predict" element={<Dashboard />} />
         <Route path="/team" element={<TeamPage />} />
       </Routes>
     </motion.div>

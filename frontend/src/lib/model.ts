@@ -87,28 +87,67 @@ export function buildFeatureVector(
   return vec;
 }
 
-export async function predict(inputs: RawInputs): Promise<Prediction> {
-  const { session, meta } = await loadModel();
+/** Run the ONNX model and return the raw class probabilities. */
+async function runProba(
+  session: ort.InferenceSession,
+  meta: Metadata,
+  inputs: RawInputs
+): Promise<number[]> {
   const vec = buildFeatureVector(inputs, meta);
   const tensor = new ort.Tensor("float32", vec, [1, vec.length]);
-
-  const feeds: Record<string, ort.Tensor> = {
-    [session.inputNames[0]]: tensor,
-  };
-  const output = await session.run(feeds);
-
+  const output = await session.run({ [session.inputNames[0]]: tensor });
   const probaTensor =
     output[meta.probaOutputName] ?? output[session.outputNames.at(-1)!];
-  const probabilities = Array.from(probaTensor.data as Float32Array);
+  return Array.from(probaTensor.data as Float32Array);
+}
 
-  let tier = 0;
-  for (let i = 1; i < probabilities.length; i++) {
-    if (probabilities[i] > probabilities[tier]) tier = i;
-  }
+function argmax(arr: number[]): number {
+  let best = 0;
+  for (let i = 1; i < arr.length; i++) if (arr[i] > arr[best]) best = i;
+  return best;
+}
 
+export async function predict(inputs: RawInputs): Promise<Prediction> {
+  const { session, meta } = await loadModel();
+  const probabilities = await runProba(session, meta, inputs);
+  const tier = argmax(probabilities);
   return {
     tier,
     label: meta.classLabels[String(tier)] ?? String(tier),
     probabilities,
   };
+}
+
+export interface Contribution {
+  feature: keyof RawInputs;
+  /** Change in P(predicted tier) caused by this input vs. the baseline value.
+      Positive = your value pushed the tier up; negative = pushed it down. */
+  contribution: number;
+}
+
+/**
+ * Local, per-prediction explanation via baseline substitution.
+ * For each input, swap it back to `baseline` and re-run the model; the drop in
+ * P(predicted tier) is that input's contribution. Pure inference — no retrain.
+ */
+export async function explain(
+  inputs: RawInputs,
+  baseline: RawInputs
+): Promise<{ tier: number; contributions: Contribution[] }> {
+  const { session, meta } = await loadModel();
+  const full = await runProba(session, meta, inputs);
+  const tier = argmax(full);
+
+  const keys = Object.keys(inputs) as (keyof RawInputs)[];
+  const contributions: Contribution[] = [];
+  for (const k of keys) {
+    if (inputs[k] === baseline[k]) {
+      contributions.push({ feature: k, contribution: 0 });
+      continue;
+    }
+    const swapped = { ...inputs, [k]: baseline[k] };
+    const p = await runProba(session, meta, swapped);
+    contributions.push({ feature: k, contribution: full[tier] - p[tier] });
+  }
+  return { tier, contributions };
 }

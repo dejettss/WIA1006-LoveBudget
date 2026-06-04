@@ -47,7 +47,7 @@ export default function TeamPage() {
           className="flex cursor-pointer items-center gap-2 rounded-2xl border border-white/60 bg-white/80 px-6 py-3 text-sm font-semibold uppercase tracking-wider text-[#9D174D] shadow-lg backdrop-blur transition hover:-translate-y-0.5 hover:bg-white"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Dashboard
+          Back to Home
         </button>
       </div>
     </div>
