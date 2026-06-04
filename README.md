@@ -17,6 +17,63 @@ The dashboard is a **React + TypeScript + Vite** app (in `frontend/`) that runs 
 trained XGBoost model **directly in the browser** via ONNX (`onnxruntime-web`) — no
 Python server is needed at runtime.
 
+**Tech stack:** React 19 · TypeScript · Vite · Tailwind CSS · Framer Motion
+(animations) · React Router (Home / Predict / Team pages) · lucide-react (icons) ·
+onnxruntime-web (in-browser inference). Python (scikit-learn, XGBoost, ONNX tools)
+is used **only offline** to train and export the model.
+
+---
+
+## 🔄 Data Flow
+
+There are two phases. The **training/export phase** happens once, offline in Python;
+the **runtime phase** happens entirely in the user's browser with no server.
+
+```
+┌─────────────────────────── OFFLINE (Python, one-time) ───────────────────────────┐
+│                                                                                   │
+│  Dating App Behavior Dataset (Kaggle, 50k rows, synthetic)                        │
+│        │                                                                          │
+│        ▼   love_on_a_budget_+_rev1.ipynb  (pandas, scikit-learn, xgboost)         │
+│  Preprocess  →  collapse 10 match_outcomes into 3 tiers  →  train & tune XGBoost  │
+│        │                                                                          │
+│        ▼   joblib.dump(...)                                                       │
+│  best_model.pkl + scaler.pkl + feature_names.pkl                                  │
+│        │                                                                          │
+│        ▼   export_onnx.py  (onnxmltools / onnxruntime)                            │
+│  frontend/public/model/model.onnx  +  metadata.json   (committed to the repo)     │
+│                                                                                   │
+└───────────────────────────────────────────────────────────────────────────────────┘
+                                     │
+                                     ▼  (loaded over HTTP by the React app)
+┌─────────────────────────── RUNTIME (browser, every use) ─────────────────────────┐
+│                                                                                   │
+│  User fills the form (sliders + dropdowns)  →  RawInputs object                   │
+│        │                                                                          │
+│        ▼   src/lib/model.ts : buildFeatureVector()                               │
+│  One-hot encode categoricals + StandardScale numerics  →  35-feature vector       │
+│   (using the μ/σ and feature order read from metadata.json)                       │
+│        │                                                                          │
+│        ▼   onnxruntime-web runs model.onnx                                        │
+│  Class probabilities [P(Low), P(Mid), P(High)]  →  argmax  →  Success Tier        │
+│        │                                                                          │
+│        ▼   src/lib/model.ts : explain()  (baseline-substitution)                  │
+│  Per-input contributions  →  rendered as the “What Shaped Your Tier” bars         │
+│        │                                                                          │
+│        ▼   React + Framer Motion                                                  │
+│  Animated tier, probability breakdown, and explanation shown to the user          │
+│                                                                                   │
+└───────────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Key points**
+- `metadata.json` is the contract between Python and the browser: it stores the
+  exact **feature order**, the **StandardScaler** mean/scale per numeric feature,
+  the **category lists** for one-hot encoding, and the **class labels**. This is how
+  `model.ts` reproduces the training preprocessing without any Python at runtime.
+- The model and all inference run **client-side** — nothing about the user's input
+  ever leaves their browser.
+
 ---
 
 ## 🚀 Quick Start 
@@ -120,12 +177,29 @@ Open the printed URL (default `http://localhost:5173`).
 <a id="step-4--use-the-dashboard"></a>
 ### Step 4 — Use the dashboard
 
+The app has three pages, reachable from the floating nav bar (logo top-left,
+**Home · Predict · Team** pill in the top-center):
+
+**1. Home (`/`)** — the landing page. It explains the project, dataset, the
+3-tier target, the ML pipeline, the model comparison, the SHAP findings, and the
+honest limitations (all sourced from the group report). Click the big
+**Predict My Success Tier** button to go to the predictor.
+
+**2. Predict (`/predict`)** — the interactive tool:
 1. Fill in your details across the three tabs:
    - **About You** — gender, orientation, location, income, education
    - **App Habits** — daily usage, swipe ratio, active hour, time of day
    - **Profile** — likes, matches, photos, bio length, messages, emoji rate
-2. Click **Predict My Success Tier**
-3. Your predicted tier and probability breakdown appear below.
+   - Tip: use the **Quick fill** presets (Power user / Casual swiper / New
+     account) to populate the behavioural fields instantly, or tick **Live
+     update** to re-predict automatically as you drag the sliders.
+2. Click **Predict My Success Tier**.
+3. Your result appears below: the predicted **tier**, a **probability
+   breakdown** across Low/Mid/High, and a **“What Shaped Your Tier”** panel
+   showing which of your inputs pushed the prediction up or down. Use **Copy
+   result** to share it, or **Reset** to restore defaults.
+
+**3. Team (`/team`)** — the group members behind the project.
 
 To stop the server, press `Ctrl+C` in the terminal.
 
@@ -135,11 +209,17 @@ To stop the server, press `Ctrl+C` in the terminal.
 
 | Path | Description |
 |------|-------------|
-| `frontend/` | React + TypeScript + Vite dashboard (Tailwind, shadcn structure) |
-| `frontend/src/components/Dashboard.tsx` | The dashboard UI |
-| `frontend/src/lib/model.ts` | In-browser ONNX inference + preprocessing |
+| `frontend/` | React + TypeScript + Vite app (Tailwind CSS) |
+| `frontend/src/App.tsx` | Routes (`/`, `/predict`, `/team`) + animated background |
+| `frontend/src/pages/HomePage.tsx` | Landing page — project explanation (sourced from the report) |
+| `frontend/src/components/Dashboard.tsx` | The prediction UI (form, result, explanation) |
+| `frontend/src/pages/TeamPage.tsx` | Team members page |
+| `frontend/src/components/NavBar.tsx` | Floating logo + Home/Predict/Team nav |
+| `frontend/src/lib/model.ts` | In-browser ONNX inference, preprocessing & explanation |
+| `frontend/src/lib/team.ts` | Team member data |
 | `frontend/src/components/ui/background-gradient-animation.tsx` | Animated gradient background |
 | `frontend/public/model/` | Exported `model.onnx` + `metadata.json` |
+| `frontend/public/logo.png` | App logo (shown in the nav bar) |
 | `export_onnx.py` | Converts the `.pkl` model to ONNX for the browser |
 | `requirements.txt` | Python deps (only for the ONNX export) |
 | `love_on_a_budget_+_rev1.ipynb` | Full ML notebook (run in Google Colab) |
