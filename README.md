@@ -1,6 +1,6 @@
 # 💸 Love on a Budget
 ### How Socioeconomic Status Shapes Dating App Success
-**WIA1006/WID3006 Machine Learning | Group Assignment | Sem 2, 2025/2026**
+**WIA1006 Machine Learning | Group Assignment | Sem 2, 2025/2026**
 
 ---
 
@@ -19,7 +19,7 @@ Python server is needed at runtime.
 
 ---
 
-## 🚀 Quick Start (for teammates)
+## 🚀 Quick Start 
 
 If you just want to **run the dashboard on your computer**, this is all you need.
 The trained model is already committed to the repo (`frontend/public/model/model.onnx`),
