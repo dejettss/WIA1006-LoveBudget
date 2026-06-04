@@ -6,7 +6,7 @@ export default function TeamPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="relative z-10 mx-auto max-w-3xl px-4 py-12 md:py-16">
+    <div className="relative z-10 mx-auto max-w-3xl px-4 pb-12 pt-24 md:pb-16 md:pt-28">
       {/* Header */}
       <header className="mb-8 text-center text-white drop-shadow-[0_2px_12px_rgba(131,24,67,0.5)]">
         <h1 className="font-serif-display text-5xl font-bold md:text-7xl">

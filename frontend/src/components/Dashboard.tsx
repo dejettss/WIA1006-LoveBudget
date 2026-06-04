@@ -1,7 +1,16 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Sparkles, Info, Loader2, RotateCcw, Check, Copy, Home } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import {
+  Sparkles,
+  Info,
+  Loader2,
+  RotateCcw,
+  Check,
+  Copy,
+  Zap,
+  Moon,
+  Sprout,
+} from "lucide-react";
 import {
   loadModel,
   predict,
@@ -26,7 +35,12 @@ function scrollToY(targetY: number) {
 
 function Card({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-3xl border border-white/60 bg-white/85 p-6 shadow-[0_16px_44px_rgba(219,39,119,0.14)] backdrop-blur-md md:p-8">
+    <div className="relative overflow-hidden rounded-3xl border border-white/60 bg-white/85 p-6 shadow-[0_16px_44px_rgba(219,39,119,0.14)] ring-1 ring-white/40 backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_22px_60px_rgba(219,39,119,0.20)] md:p-8">
+      {/* hairline gradient accent along the top edge */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#F472B6] to-transparent"
+      />
       {children}
     </div>
   );
@@ -52,10 +66,13 @@ function Slider({
   help?: string;
 }) {
   const clamp = (v: number) => Math.min(max, Math.max(min, v));
+  const pct = max > min ? ((value - min) / (max - min)) * 100 : 0;
   return (
-    <label className="block">
-      <div className="mb-1 flex items-baseline justify-between gap-2">
-        <span className="text-sm font-medium text-[#831843]">{label}</span>
+    <label className="group block">
+      <div className="mb-1.5 flex items-baseline justify-between gap-2">
+        <span className="text-sm font-medium text-[#831843] transition-colors group-focus-within:text-[#DB2777]">
+          {label}
+        </span>
         <input
           type="number"
           inputMode="decimal"
@@ -68,7 +85,7 @@ function Slider({
             const v = Number(e.target.value);
             if (!Number.isNaN(v)) onChange(clamp(v));
           }}
-          className="w-20 rounded-md border border-pink-100 bg-pink-50/50 px-2 py-0.5 text-right font-serif-display text-lg font-semibold text-[#DB2777] outline-none transition focus:border-[#DB2777] focus:ring-2 focus:ring-pink-200 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+          className="w-20 rounded-lg border border-pink-100 bg-pink-50/50 px-2 py-0.5 text-right font-serif-display text-lg font-semibold text-[#DB2777] outline-none transition focus:border-[#DB2777] focus:bg-white focus:ring-2 focus:ring-pink-200 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
         />
       </div>
       <input
@@ -79,7 +96,10 @@ function Slider({
         value={value}
         aria-label={label}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="h-2 w-full cursor-pointer appearance-none rounded-full bg-pink-100 accent-[#DB2777]"
+        style={{
+          background: `linear-gradient(to right, #DB2777 0%, #F472B6 ${pct}%, #FBCFE8 ${pct}%, #FBCFE8 100%)`,
+        }}
+        className="lob-range h-2 w-full cursor-pointer appearance-none rounded-full"
       />
       {help && (
         <p className="mt-1 text-xs italic text-[#9D174D]/70">
@@ -110,14 +130,14 @@ function Select({
   help?: string;
 }) {
   return (
-    <label className="block">
-      <span className="mb-1 block text-sm font-medium text-[#831843]">
+    <label className="group block">
+      <span className="mb-1 block text-sm font-medium text-[#831843] transition-colors group-focus-within:text-[#DB2777]">
         {label}
       </span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full cursor-pointer rounded-xl border border-pink-200 bg-white px-3 py-2 text-[#831843] outline-none transition focus:border-[#DB2777] focus:ring-2 focus:ring-pink-200"
+        className="w-full cursor-pointer rounded-xl border border-pink-200 bg-white px-3 py-2 text-[#831843] outline-none transition hover:border-pink-300 focus:border-[#DB2777] focus:ring-2 focus:ring-pink-200"
       >
         {options.map((o) => (
           <option key={o} value={o}>
@@ -151,10 +171,14 @@ const DEFAULT_INPUTS: RawInputs = {
 
 // One-click example profiles for quick demos. Each only overrides the
 // behavioural fields; categorical/“About You” fields keep their current value.
-const PRESETS: { name: string; emoji: string; values: Partial<RawInputs> }[] = [
+const PRESETS: {
+  name: string;
+  icon: typeof Zap;
+  values: Partial<RawInputs>;
+}[] = [
   {
     name: "Power user",
-    emoji: "⚡",
+    icon: Zap,
     values: {
       app_usage_time_min: 240,
       swipe_right_ratio: 0.7,
@@ -169,7 +193,7 @@ const PRESETS: { name: string; emoji: string; values: Partial<RawInputs> }[] = [
   },
   {
     name: "Casual swiper",
-    emoji: "🌙",
+    icon: Moon,
     values: {
       app_usage_time_min: 45,
       swipe_right_ratio: 0.35,
@@ -184,7 +208,7 @@ const PRESETS: { name: string; emoji: string; values: Partial<RawInputs> }[] = [
   },
   {
     name: "New account",
-    emoji: "🌱",
+    icon: Sprout,
     values: {
       app_usage_time_min: 20,
       swipe_right_ratio: 0.5,
@@ -243,7 +267,7 @@ const TIER_META: Record<
 /* ── Dashboard ────────────────────────────────────────────────────────────── */
 
 export default function Dashboard() {
-  const navigate = useNavigate();
+  const reduce = useReducedMotion();
   const [tab, setTab] = useState<Tab>("About You");
   const [modelReady, setModelReady] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -349,21 +373,11 @@ export default function Dashboard() {
   const opt = (k: string, fallback: string[]) => cats[k] ?? fallback;
 
   return (
-    <div className="relative z-10 mx-auto max-w-3xl px-4 py-12 md:py-16">
-      {/* Back to home */}
-      <button
-        onClick={() => navigate("/")}
-        aria-label="Back to home"
-        title="Back to home"
-        className="fixed left-4 top-4 z-50 flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border border-amber-300/60 bg-gradient-to-br from-[#DB2777] to-[#BE185D] text-white shadow-[0_8px_22px_rgba(219,39,119,0.45)] transition duration-300 hover:-translate-y-0.5 hover:scale-105 hover:brightness-105"
-      >
-        <Home className="h-5 w-5" />
-      </button>
-
+    <div className="relative z-10 mx-auto max-w-3xl px-4 pb-12 pt-24 md:pb-16 md:pt-28">
       {/* Hero */}
       <header className="mb-8 text-center text-white drop-shadow-[0_2px_12px_rgba(131,24,67,0.5)]">
         <h1 className="font-serif-display text-5xl font-bold md:text-7xl">
-          💖 Love on a Budget
+          Love on a Budget
         </h1>
         <p className="font-serif-display mt-1 text-2xl italic md:text-3xl">
           How Socioeconomic Status Shapes Dating-App Success
@@ -393,18 +407,28 @@ export default function Dashboard() {
       </details>
 
       {/* Tabs */}
-      <div className="mb-4 flex justify-center gap-2 rounded-full bg-white/50 p-1.5 backdrop-blur">
+      <div className="mb-4 flex justify-center gap-1 rounded-full bg-white/50 p-1.5 backdrop-blur">
         {TABS.map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`cursor-pointer rounded-full px-4 py-1.5 text-sm font-medium transition ${
-              tab === t
-                ? "bg-gradient-to-r from-[#DB2777] to-[#F472B6] text-white shadow"
-                : "text-[#9D174D] hover:bg-white/60"
+            aria-pressed={tab === t}
+            className={`relative cursor-pointer rounded-full px-4 py-1.5 text-sm font-medium outline-none transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[#DB2777] focus-visible:ring-offset-1 ${
+              tab === t ? "text-white" : "text-[#9D174D] hover:text-[#831843]"
             }`}
           >
-            {t}
+            {tab === t && (
+              <motion.span
+                layoutId="tabPill"
+                className="absolute inset-0 rounded-full bg-gradient-to-r from-[#DB2777] to-[#F472B6] shadow"
+                transition={
+                  reduce
+                    ? { duration: 0 }
+                    : { type: "spring", stiffness: 380, damping: 30 }
+                }
+              />
+            )}
+            <span className="relative z-10">{t}</span>
           </button>
         ))}
       </div>
@@ -413,28 +437,37 @@ export default function Dashboard() {
       <div className="mb-4 flex flex-wrap items-center justify-center gap-2">
         <span className="text-xs font-medium text-white/80">Quick fill:</span>
         {PRESETS.map((p) => (
-          <button
+          <motion.button
             key={p.name}
             onClick={() => applyPreset(p.values)}
-            className="cursor-pointer rounded-full border border-white/50 bg-white/70 px-3 py-1 text-xs font-medium text-[#9D174D] transition hover:bg-white"
+            whileTap={reduce ? undefined : { scale: 0.94 }}
+            className="flex cursor-pointer items-center gap-1.5 rounded-full border border-white/50 bg-white/70 px-3 py-1.5 text-xs font-medium text-[#9D174D] shadow-sm outline-none transition-colors duration-200 hover:border-[#F472B6] hover:bg-white hover:text-[#831843] focus-visible:ring-2 focus-visible:ring-[#DB2777]"
           >
-            {p.emoji} {p.name}
-          </button>
+            <p.icon className="h-3.5 w-3.5" />
+            {p.name}
+          </motion.button>
         ))}
-        <label className="ml-1 flex cursor-pointer items-center gap-1.5 rounded-full border border-white/50 bg-white/70 px-3 py-1 text-xs font-medium text-[#9D174D]">
+        <label className="ml-1 flex cursor-pointer items-center gap-1.5 rounded-full border border-white/50 bg-white/70 px-3 py-1.5 text-xs font-medium text-[#9D174D] shadow-sm transition-colors duration-200 hover:bg-white">
           <input
             type="checkbox"
             checked={live}
             onChange={(e) => setLive(e.target.checked)}
             className="h-3.5 w-3.5 cursor-pointer accent-[#DB2777]"
           />
-          ⚡ Live update
+          <Zap className="h-3.5 w-3.5" />
+          Live update
         </label>
       </div>
 
       <Card>
         {tab === "About You" && (
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <motion.div
+            key="about"
+            initial={reduce ? false : { opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="grid grid-cols-1 gap-5 md:grid-cols-2"
+          >
             <Select label="Gender" value={inputs.gender} options={opt("gender", ["Female", "Male"])} onChange={(v) => set("gender", v)} />
             <Select label="Sexual Orientation" value={inputs.sexual_orientation} options={opt("sexual_orientation", ["Straight"])} onChange={(v) => set("sexual_orientation", v)} />
             <Select label="Location Type" value={inputs.location_type} options={opt("location_type", ["Urban"])} onChange={(v) => set("location_type", v)} />
@@ -452,51 +485,72 @@ export default function Dashboard() {
               onChange={setEducationLevel}
               help="Same caveat as income bracket."
             />
-          </div>
+          </motion.div>
         )}
 
         {tab === "App Habits" && (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <motion.div
+            key="habits"
+            initial={reduce ? false : { opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="grid grid-cols-1 gap-6 md:grid-cols-2"
+          >
             <Slider label="Daily App Usage (minutes)" value={inputs.app_usage_time_min} min={0} max={300} step={5} onChange={(v) => set("app_usage_time_min", v)} />
             <Slider label="Swipe Right Ratio" value={inputs.swipe_right_ratio} min={0} max={1} step={0.01} onChange={(v) => set("swipe_right_ratio", v)} format={(v) => v.toFixed(2)} help="Fraction of profiles you swipe right on." />
             <Slider label="Last Active Hour (0–23)" value={inputs.last_active_hour} min={0} max={23} onChange={(v) => set("last_active_hour", v)} />
             <Select label="When Do You Usually Swipe?" value={inputs.swipe_time_of_day} options={opt("swipe_time_of_day", ["Evening"])} onChange={(v) => set("swipe_time_of_day", v)} />
-          </div>
+          </motion.div>
         )}
 
         {tab === "Profile" && (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <motion.div
+            key="profile"
+            initial={reduce ? false : { opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="grid grid-cols-1 gap-6 md:grid-cols-2"
+          >
             <Slider label="Likes Received" value={inputs.likes_received} min={0} max={200} onChange={(v) => set("likes_received", v)} />
             <Slider label="Bio Length (characters)" value={inputs.bio_length} min={0} max={500} step={10} onChange={(v) => set("bio_length", v)} />
             <Slider label="Mutual Matches" value={inputs.mutual_matches} min={0} max={30} onChange={(v) => set("mutual_matches", v)} />
             <Slider label="Messages Sent" value={inputs.message_sent_count} min={0} max={100} onChange={(v) => set("message_sent_count", v)} />
             <Slider label="Profile Pictures" value={inputs.profile_pics_count} min={0} max={6} onChange={(v) => set("profile_pics_count", v)} />
             <Slider label="Emoji Usage Rate" value={inputs.emoji_usage_rate} min={0} max={1} step={0.01} onChange={(v) => set("emoji_usage_rate", v)} format={(v) => v.toFixed(2)} />
-          </div>
+          </motion.div>
         )}
       </Card>
 
       {/* Predict */}
       <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-        <button
+        <motion.button
           onClick={onPredict}
           disabled={!modelReady || predicting}
-          className="flex cursor-pointer items-center gap-2 rounded-2xl border border-amber-500/50 bg-gradient-to-r from-[#DB2777] to-[#BE185D] px-8 py-3 text-sm font-semibold uppercase tracking-wider text-white shadow-[0_10px_26px_rgba(219,39,119,0.4)] transition hover:-translate-y-0.5 hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+          whileHover={reduce || !modelReady ? undefined : { y: -2 }}
+          whileTap={reduce || !modelReady ? undefined : { scale: 0.97 }}
+          className="group relative flex cursor-pointer items-center gap-2 overflow-hidden rounded-2xl border border-amber-400/50 bg-gradient-to-r from-[#DB2777] to-[#BE185D] px-8 py-3 text-sm font-semibold uppercase tracking-wider text-white shadow-[0_10px_26px_rgba(219,39,119,0.4)] outline-none transition hover:brightness-105 focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
         >
+          {/* light sweep on hover */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 -skew-x-12 bg-white/25 blur-md transition-transform duration-700 ease-out group-hover:translate-x-[450%]"
+          />
           {predicting ? (
             <Loader2 className="h-5 w-5 animate-spin" />
           ) : (
             <Sparkles className="h-5 w-5" />
           )}
           {modelReady ? "Predict My Success Tier" : "Loading model…"}
-        </button>
-        <button
+        </motion.button>
+        <motion.button
           onClick={onReset}
           aria-label="Reset all inputs to defaults"
-          className="flex cursor-pointer items-center gap-2 rounded-2xl border border-white/60 bg-white/80 px-5 py-3 text-sm font-semibold text-[#9D174D] shadow transition hover:-translate-y-0.5 hover:bg-white"
+          whileHover={reduce ? undefined : { y: -2 }}
+          whileTap={reduce ? undefined : { scale: 0.97 }}
+          className="flex cursor-pointer items-center gap-2 rounded-2xl border border-white/60 bg-white/80 px-5 py-3 text-sm font-semibold text-[#9D174D] shadow outline-none transition-colors hover:bg-white focus-visible:ring-2 focus-visible:ring-[#DB2777]"
         >
           <RotateCcw className="h-4 w-4" /> Reset
-        </button>
+        </motion.button>
       </div>
 
       {loadError && (
@@ -537,20 +591,36 @@ export default function Dashboard() {
               🎲 Probability Breakdown
             </h3>
             <div className="mt-3 grid grid-cols-3 gap-3">
-              {["Low", "Mid", "High"].map((lbl, i) => (
-                <div
-                  key={lbl}
-                  className="rounded-2xl border-t-[3px] bg-white px-3 py-3 text-center shadow"
-                  style={{ borderTopColor: TIER_META[i].color }}
-                >
-                  <div className="text-xs font-medium text-[#831843]">
-                    {TIER_META[i].emoji} {lbl}
-                  </div>
-                  <div className="font-serif-display text-2xl font-bold text-[#DB2777]">
-                    {(result.probabilities[i] * 100).toFixed(1)}%
-                  </div>
-                </div>
-              ))}
+              {["Low", "Mid", "High"].map((lbl, i) => {
+                const isTop = i === result.tier;
+                return (
+                  <motion.div
+                    key={lbl}
+                    initial={reduce ? false : { opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, delay: 0.12 + i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                    className={`rounded-2xl border-t-[3px] bg-white px-3 py-3 text-center shadow transition-shadow ${
+                      isTop ? "ring-2 ring-offset-1" : ""
+                    }`}
+                    style={{
+                      borderTopColor: TIER_META[i].color,
+                      ...(isTop
+                        ? ({ "--tw-ring-color": `${TIER_META[i].color}66` } as React.CSSProperties)
+                        : {}),
+                    }}
+                  >
+                    <div className="text-xs font-medium text-[#831843]">
+                      {TIER_META[i].emoji} {lbl}
+                    </div>
+                    <div
+                      className="font-serif-display text-2xl font-bold"
+                      style={{ color: isTop ? TIER_META[i].color : "#DB2777" }}
+                    >
+                      {(result.probabilities[i] * 100).toFixed(1)}%
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
 
             {/* Bars */}
@@ -561,12 +631,12 @@ export default function Dashboard() {
                     {lbl}
                   </span>
                   <div className="h-3 flex-1 overflow-hidden rounded-full bg-pink-100">
-                    <div
-                      className="h-full rounded-full transition-all duration-700"
-                      style={{
-                        width: `${result.probabilities[i] * 100}%`,
-                        background: TIER_META[i].bar,
-                      }}
+                    <motion.div
+                      className="h-full rounded-full"
+                      initial={reduce ? false : { width: 0 }}
+                      animate={{ width: `${result.probabilities[i] * 100}%` }}
+                      transition={{ duration: 0.7, delay: 0.2 + i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                      style={{ background: TIER_META[i].bar }}
                     />
                   </div>
                 </div>
@@ -600,7 +670,7 @@ export default function Dashboard() {
                     </p>
                   ) : (
                     <div className="mt-3 space-y-2">
-                      {ranked.map((c) => {
+                      {ranked.map((c, ri) => {
                         const pos = c.contribution >= 0;
                         const w = (Math.abs(c.contribution) / maxAbs) * 100;
                         return (
@@ -614,18 +684,24 @@ export default function Dashboard() {
                             {/* negative (left) track */}
                             <div className="flex h-3 flex-1 justify-end overflow-hidden rounded-l-full bg-pink-50">
                               {!pos && (
-                                <div
+                                <motion.div
                                   className="h-full rounded-l-full"
-                                  style={{ width: `${w}%`, background: "#F87171" }}
+                                  initial={reduce ? false : { width: 0 }}
+                                  animate={{ width: `${w}%` }}
+                                  transition={{ duration: 0.6, delay: 0.15 + ri * 0.05, ease: [0.22, 1, 0.36, 1] }}
+                                  style={{ background: "#F87171" }}
                                 />
                               )}
                             </div>
                             {/* positive (right) track */}
                             <div className="h-3 flex-1 overflow-hidden rounded-r-full bg-pink-50">
                               {pos && (
-                                <div
+                                <motion.div
                                   className="h-full rounded-r-full"
-                                  style={{ width: `${w}%`, background: "#34D399" }}
+                                  initial={reduce ? false : { width: 0 }}
+                                  animate={{ width: `${w}%` }}
+                                  transition={{ duration: 0.6, delay: 0.15 + ri * 0.05, ease: [0.22, 1, 0.36, 1] }}
+                                  style={{ background: "#34D399" }}
                                 />
                               )}
                             </div>
@@ -651,9 +727,10 @@ export default function Dashboard() {
 
             {/* Share */}
             <div className="mt-6 flex justify-center">
-              <button
+              <motion.button
                 onClick={copyResult}
-                className="flex cursor-pointer items-center gap-2 rounded-xl border border-pink-200 bg-white px-4 py-2 text-xs font-medium text-[#9D174D] shadow-sm transition hover:bg-pink-50"
+                whileTap={reduce ? undefined : { scale: 0.96 }}
+                className="flex cursor-pointer items-center gap-2 rounded-xl border border-pink-200 bg-white px-4 py-2 text-xs font-medium text-[#9D174D] shadow-sm outline-none transition-colors hover:bg-pink-50 focus-visible:ring-2 focus-visible:ring-[#DB2777]"
               >
                 {copied ? (
                   <>
@@ -664,7 +741,7 @@ export default function Dashboard() {
                     <Copy className="h-4 w-4" /> Copy result
                   </>
                 )}
-              </button>
+              </motion.button>
             </div>
 
             <p className="mt-5 text-center text-xs italic text-[#9D174D]/70">

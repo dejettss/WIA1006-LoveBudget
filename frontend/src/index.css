@@ -17,3 +17,51 @@ body,
 .font-serif-display {
   font-family: 'Cormorant', Georgia, serif;
 }
+
+/* ── Custom range slider thumb (elegant white knob with pink ring) ─────────── */
+.lob-range {
+  outline: none;
+}
+.lob-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 1.15rem;
+  width: 1.15rem;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 3px solid #db2777;
+  box-shadow: 0 2px 8px rgba(219, 39, 119, 0.45);
+  cursor: pointer;
+  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
+}
+.lob-range::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 3px 12px rgba(219, 39, 119, 0.55);
+}
+.lob-range:active::-webkit-slider-thumb {
+  transform: scale(1.08);
+}
+.lob-range:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px rgba(244, 114, 182, 0.45);
+}
+.lob-range::-moz-range-thumb {
+  height: 1.15rem;
+  width: 1.15rem;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 3px solid #db2777;
+  box-shadow: 0 2px 8px rgba(219, 39, 119, 0.45);
+  cursor: pointer;
+}
+
+/* Respect users who prefer reduced motion: neutralise transforms/animation. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

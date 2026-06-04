@@ -4,7 +4,7 @@ import { BackgroundGradientAnimation } from "@/components/ui/background-gradient
 import HomePage from "@/pages/HomePage";
 import Dashboard from "@/components/Dashboard";
 import TeamPage from "@/pages/TeamPage";
-import TeamMenu from "@/components/TeamMenu";
+import NavBar from "@/components/NavBar";
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -45,7 +45,7 @@ function App() {
             containerClassName="!h-full !w-full"
           />
         </div>
-        <TeamMenu />
+        <NavBar />
         <AnimatedRoutes />
       </div>
     </BrowserRouter>
