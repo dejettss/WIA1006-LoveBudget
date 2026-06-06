@@ -119,10 +119,10 @@ export default function HomePage() {
           transition={{ duration: 0.5 }}
           className="font-serif-display text-5xl font-bold md:text-7xl"
         >
-          Love on a Budget
+          Engagement Over Affluence
         </motion.h1>
         <p className="font-serif-display mt-1 text-2xl italic md:text-3xl">
-          How Socioeconomic Status Shapes Dating-App Success
+          A Machine Learning Analysis of Dating-App Success Tiers
         </p>
         <p className="mx-auto mt-3 max-w-xl text-sm font-medium text-white/90">
           WIA1006 / WID3006 Machine Learning · Group 10 · Sem 2, 2025/2026
@@ -136,18 +136,20 @@ export default function HomePage() {
           title="The Research Question"
         >
           <p className="rounded-2xl bg-pink-50 px-4 py-3 font-medium text-[#831843]">
-            “To what extent do a user's <b>income bracket</b> and{" "}
-            <b>educational attainment</b> predict their dating-app success tier,
-            after accounting for behavioural factors such as app-usage patterns,
-            swipe behaviour, and engagement rates?”
+            “Does <b>how you use a dating app</b> matter more than{" "}
+            <b>who you are economically</b>? Specifically, do{" "}
+            <b>income bracket</b> and <b>education level</b> add anything
+            meaningful to predicting success once we account for how a user
+            actually behaves on the platform?”
           </p>
           <p>
             Dating apps compress courtship into rapid micro-decisions — a swipe,
-            a match, a message — producing a behavioural dataset we can analyse.
-            Most prior work studies <i>behaviour</i>; we ask whether the{" "}
-            <b>structural socioeconomic traits of the users themselves</b> shape
-            romantic outcomes. If money or education reliably predicts success,
-            these platforms may be quietly mirroring real-world inequality.
+            a match, a message. The behavioural side of success is well studied;
+            the <b>structural socioeconomic side</b> far less so. If money or
+            education predicted outcomes beyond engagement, these platforms might
+            be quietly mirroring real-world inequality — and if engagement
+            dominates instead, then how you show up matters more than what you
+            earn. This project asks which story the data supports.
           </p>
         </Panel>
 
@@ -158,11 +160,12 @@ export default function HomePage() {
             <b>synthetic</b> set that mimics realistic user behaviour with no
             privacy concerns.
           </p>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
             {[
               { k: "50,000", v: "records" },
               { k: "19", v: "features" },
-              { k: "9 / 10", v: "numeric / categorical" },
+              { k: "9", v: "numeric" },
+              { k: "10", v: "categorical" },
               { k: "0", v: "missing values" },
             ].map((s) => (
               <div
@@ -183,6 +186,17 @@ export default function HomePage() {
             <code className="rounded bg-pink-50 px-1 font-mono text-[#BE185D]">interest_tags</code>{" "}
             field (40,206 unique values) was excluded as it needs NLP beyond this
             study's scope.
+          </p>
+          <p className="rounded-2xl border border-amber-200 bg-amber-50/70 px-4 py-3 text-[#92400E]">
+            <b>The single most important caveat:</b>{" "}
+            <code className="rounded bg-white/60 px-1 font-mono">income_bracket</code>{" "}
+            and{" "}
+            <code className="rounded bg-white/60 px-1 font-mono">education_level</code>{" "}
+            — the two features at the heart of our question — turned out to
+            contain <b>no valid values after preprocessing</b> (all-NaN) and had
+            to be dropped before training. So the model <b>never saw them</b>,
+            and the socioeconomic hypothesis couldn't be tested through the model
+            directly. This shaped everything that follows.
           </p>
         </Panel>
 
@@ -230,12 +244,15 @@ export default function HomePage() {
           <ol className="ml-1 space-y-3">
             <Step n={1}>
               <b>Feature removal.</b> Drop <code className="font-mono text-[#BE185D]">interest_tags</code>{" "}
-              (40k+ unique values) and redundant label columns.
+              (40k+ unique values) and redundant label columns — and, critically,{" "}
+              <code className="font-mono text-[#BE185D]">income_bracket</code> and{" "}
+              <code className="font-mono text-[#BE185D]">education_level</code>,
+              which were <b>all-NaN after imputation</b> and could not be used.
             </Step>
             <Step n={2}>
-              <b>Ordinal encoding.</b> Income (Very Low → Very High, 0–6) and
-              education (No Formal Education → Postdoc, 0–8) preserve their
-              natural rank order.
+              <b>Ordinal encoding.</b> Income and education were <i>intended</i>
+              to be ordinal-encoded (Very Low → Very High; No Formal Education →
+              Postdoc) to preserve rank order — but were dropped per Step 1.
             </Step>
             <Step n={3}>
               <b>One-hot encoding.</b> Nominal fields — gender,
@@ -265,7 +282,8 @@ export default function HomePage() {
           <p>
             Five classifiers spanning linear, instance-based, kernel, and
             ensemble paradigms, scored by <b>macro-average F1</b> (treats each
-            tier equally) against a majority-class baseline:
+            tier equally) against a majority-class baseline. Surprisingly, the
+            simplest model — <b>KNN</b> — scored the highest Macro F1 (0.2953):
           </p>
           <div className="overflow-hidden rounded-2xl border border-pink-100">
             <table className="w-full text-left text-sm">
@@ -302,15 +320,22 @@ export default function HomePage() {
               </tbody>
             </table>
           </div>
-          <p>
-            We tuned <b>XGBoost</b> (native optimisation + clean SHAP support)
-            with <code className="font-mono text-[#BE185D]">RandomizedSearchCV</code>{" "}
-            over 5-fold CV. Best params:{" "}
+          <p className="rounded-2xl border border-pink-100 bg-pink-50/60 px-4 py-3 text-[#831843]">
+            <b>Why XGBoost, not KNN?</b> KNN had the top single-split score, but
+            its <b>cross-validated</b> F1 was the lowest (0.2097 vs XGBoost's
+            0.2621) — a sign that score was an unstable, overfit fluke. XGBoost
+            generalises best, works with SHAP for the explanations below, and
+            ships as a tiny in-browser model (KNN would need the whole 40k-row
+            training set to predict). So we tuned <b>XGBoost</b> with{" "}
+            <code className="font-mono text-[#BE185D]">RandomizedSearchCV</code>{" "}
+            over 5-fold CV —{" "}
             <code className="font-mono text-[#BE185D]">
               n_estimators=200, max_depth=7, learning_rate=0.2, subsample=0.8,
               colsample_bytree=1.0
             </code>{" "}
-            — lifting macro F1 from 0.2481 → <b>0.2890</b>.
+            — lifting macro F1 from 0.2481 → <b>0.2890</b>, and deployed it here.
+            (SVC was trained on an 8,000-row subsample for tractability;
+            auto-sklearn couldn't run due to environment constraints.)
           </p>
         </Panel>
 
@@ -322,7 +347,8 @@ export default function HomePage() {
           <p>
             SHAP analysis on the tuned model ranks feature influence by mean
             |SHAP|. <b>Behavioural metrics dominate the entire top 10</b> —
-            income and education don't appear:
+            income and education are absent (they were dropped as all-NaN, so no
+            SHAP value could even be computed for them):
           </p>
           <div className="space-y-1.5">
             {SHAP.map((s, i) => (
@@ -366,25 +392,31 @@ export default function HomePage() {
             <div>
               <p className="font-semibold text-[#831843]">💰 Does money make a difference?</p>
               <p>
-                No. Success-tier distributions are essentially flat across every
-                income group, from “Very Low” to “Very High”.{" "}
-                <b>Income does not buy a better match.</b>
+                We can't answer this <i>through the model</i> — income was dropped
+                as all-NaN. But the <b>descriptive</b> charts are clear:
+                success-tier distributions are essentially flat across every
+                income group, from “Very Low” to “Very High”. No raw association.
               </p>
             </div>
             <div>
               <p className="font-semibold text-[#831843]">🎓 Does education play a role?</p>
               <p>
-                Also no — and not even monotonically. MBA/PhD/Postdoc holders show
-                no consistent advantage over those with lower qualifications.
+                Same story — absent from the model, but descriptively flat across
+                all nine levels, and not even monotonic. MBA/PhD/Postdoc holders
+                show no consistent advantage over lower qualifications.
               </p>
             </div>
             <div>
               <p className="font-semibold text-[#831843]">⚖️ Behavioural vs socioeconomic?</p>
               <p>
-                How you <i>engage</i> matters more to the model than who you are
-                economically — but on this synthetic data, even behaviour is only
-                weakly informative. An engaged low-income user can match just as
-                well as a disengaged wealthy one.
+                Engagement is the only dimension the model could work with — hence
+                the title, <b>Engagement Over Affluence</b>. But there's a catch:
+                behavioural features aren't socioeconomically neutral.{" "}
+                <code className="font-mono text-[#BE185D]">app_usage_time</code>{" "}
+                tracks leisure time; <code className="font-mono text-[#BE185D]">bio_length</code>{" "}
+                may reflect education. So behaviour can quietly act as a{" "}
+                <b>proxy for socioeconomic status</b> — meaning a “purely
+                behavioural” model could still disadvantage lower-income users.
               </p>
             </div>
           </div>
@@ -402,6 +434,11 @@ export default function HomePage() {
             prediction as an <b>educational demonstration</b>, not life advice.
           </p>
           <ul className="ml-4 list-disc space-y-1">
+            <li>
+              <b>Socioeconomic feature loss</b> — income and education were
+              dropped as all-NaN, so the core hypothesis was never empirically
+              testable through the model. The biggest limitation of the study.
+            </li>
             <li>
               <b>Synthetic data</b> — relationships may not reflect the real
               world; findings are suggestive, not causal.

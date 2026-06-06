@@ -1,11 +1,13 @@
-# 💸 Love on a Budget
-### How Socioeconomic Status Shapes Dating App Success
-**WIA1006 Machine Learning | Group Assignment | Sem 2, 2025/2026**
+# 💸 Engagement Over Affluence
+### A Machine Learning Analysis of Dating App Success Tiers
+**WIA1006 / WID3006 Machine Learning | Group 10 | Sem 2, 2025/2026**
 
 ---
 
 ## About
 This project investigates whether a user's income bracket and education level can predict their dating app success — even after controlling for behavioural factors like app usage and swipe patterns.
+
+A key finding shaped the project: the two socioeconomic features (`income_bracket`, `education_level`) turned out to be **entirely missing (all-NaN) after preprocessing** and had to be dropped, so the model could only learn from behavioural signals. The evidence pointed to **engagement over affluence** — hence the title.
 
 The interactive dashboard lets anyone input their profile details and get a predicted **Success Tier**: 🟢 High · 🟡 Mid · 🔴 Low.
 
@@ -229,13 +231,14 @@ To stop the server, press `Ctrl+C` in the terminal.
 
 ## Models Compared
 
-| Model | Macro F1 |
-|-------|----------|
-| KNN | 0.2953 |
-| Random Forest | 0.2637 |
-| XGBoost *(tuned — used in dashboard)* | 0.2890 |
-| SVC | 0.2229 |
-| Logistic Regression | 0.2225 |
-| Baseline (majority class) | 0.2225 |
+| Model | Accuracy | Macro F1 |
+|-------|----------|----------|
+| **KNN** *(best Macro F1)* | 0.4651 | **0.2953** |
+| Random Forest | 0.4848 | 0.2637 |
+| XGBoost (default) | 0.4899 | 0.2481 |
+| XGBoost *(tuned — powers the dashboard)* | 0.4572 | 0.2890 |
+| SVC *(RBF, 8k subsample)* | 0.5009 | 0.2229 |
+| Logistic Regression | 0.5008 | 0.2225 |
+| Baseline (majority class) | 0.5008 | 0.2225 |
 
-> Because the training data is synthetic, no model meaningfully outperformed the majority-class baseline. Predictions are for educational demonstration purposes.
+> **KNN** scored the highest Macro F1 (0.2953), but **XGBoost** was tuned and deployed in the dashboard for its clean SHAP integration. Because the training data is synthetic — and the socioeconomic features were all-NaN — no model meaningfully outperformed the majority-class baseline. Predictions are for educational demonstration purposes.

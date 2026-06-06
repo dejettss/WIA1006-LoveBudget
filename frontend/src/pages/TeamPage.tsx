@@ -13,7 +13,7 @@ export default function TeamPage() {
           Meet the Team
         </h1>
         <p className="font-serif-display mt-1 text-2xl italic md:text-3xl">
-          The minds behind Love on a Budget
+          The minds behind Engagement Over Affluence
         </p>
         <p className="mx-auto mt-3 max-w-xl text-sm font-medium text-white/90">
           WIA1006 / WID3006 Machine Learning · Group Assignment

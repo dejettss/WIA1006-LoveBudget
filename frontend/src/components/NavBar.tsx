@@ -13,13 +13,13 @@ export default function NavBar() {
       {/* Logo — top left */}
       <NavLink
         to="/"
-        aria-label="Love on a Budget — home"
+        aria-label="Engagement Over Affluence — home"
         className="fixed left-4 top-3 z-50 transition hover:-translate-y-0.5 hover:scale-105"
       >
         <img
-          src={`${import.meta.env.BASE_URL}logo.png`}
-          alt="Love on a Budget"
-          className="h-16 w-auto drop-shadow-[0_4px_14px_rgba(131,24,67,0.45)]"
+          src={`${import.meta.env.BASE_URL}logo%20real.png`}
+          alt="Engagement Over Affluence"
+          className="h-12 w-auto drop-shadow-[0_4px_14px_rgba(131,24,67,0.45)]"
         />
       </NavLink>
 

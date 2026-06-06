@@ -305,7 +305,7 @@ export default function Dashboard() {
     if (!result) return;
     const pct = (i: number) => `${(result.probabilities[i] * 100).toFixed(1)}%`;
     const text =
-      `💖 Love on a Budget — my predicted Success Tier: ${result.label}\n` +
+      `💖 Engagement Over Affluence — my predicted Success Tier: ${result.label}\n` +
       `🔴 Low ${pct(0)} · 🟡 Mid ${pct(1)} · 🟢 High ${pct(2)}\n` +
       `(Educational demo — XGBoost on synthetic data.)`;
     try {
@@ -377,10 +377,10 @@ export default function Dashboard() {
       {/* Hero */}
       <header className="mb-8 text-center text-white drop-shadow-[0_2px_12px_rgba(131,24,67,0.5)]">
         <h1 className="font-serif-display text-5xl font-bold md:text-7xl">
-          Love on a Budget
+          Engagement Over Affluence
         </h1>
         <p className="font-serif-display mt-1 text-2xl italic md:text-3xl">
-          How Socioeconomic Status Shapes Dating-App Success
+          A Machine Learning Analysis of Dating-App Success Tiers
         </p>
         <p className="mx-auto mt-3 max-w-xl text-sm font-medium text-white/90">
           Tell us your vibe &amp; swiping habits — a real XGBoost model (running
@@ -395,12 +395,13 @@ export default function Dashboard() {
         </summary>
         <div className="mt-2 space-y-1 text-[#9D174D]">
           <p>
-            <b>Model:</b> Tuned XGBoost (35 features) — WIA1006/WID3006 group
+            <b>Model:</b> Tuned XGBoost (35 features) — WIA1006/WID3006 Group 10
             assignment, exported to ONNX and run client-side.
           </p>
           <p>
             <b>Honest caveat:</b> on the synthetic 50k-row dataset no model beat
-            the majority-class baseline meaningfully (~47–50% accuracy). Treat
+            the majority-class baseline meaningfully (~46–50% accuracy), and the
+            two socioeconomic features were all-NaN and dropped. Treat
             predictions as an educational demonstration.
           </p>
         </div>
@@ -476,14 +477,14 @@ export default function Dashboard() {
               value={incomeBracket}
               options={["Very Low", "Low", "Lower-Middle", "Middle", "Upper-Middle", "High", "Very High"]}
               onChange={setIncomeBracket}
-              help="Not used by the model (dropped in training) — kept for context."
+              help="Dropped before training (all-NaN in the dataset) — kept here for context only."
             />
             <Select
               label="Education Level"
               value={educationLevel}
               options={["No Formal Education", "High School", "Diploma", "Associate's", "Bachelor's", "MBA", "Master's", "PhD", "Postdoc"]}
               onChange={setEducationLevel}
-              help="Same caveat as income bracket."
+              help="Same as income — all-NaN, dropped before training. For context only."
             />
           </motion.div>
         )}
