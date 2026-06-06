@@ -1,6 +1,6 @@
 # 💸 Engagement Over Affluence
 ### A Machine Learning Analysis of Dating App Success Tiers
-**WIA1006 / WID3006 Machine Learning | Group 10 | Sem 2, 2025/2026**
+**WIA1006 Machine Learning | Group 10 | Sem 2, 2025/2026**
 
 ---
 

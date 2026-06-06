@@ -16,7 +16,7 @@ export default function TeamPage() {
           The minds behind Engagement Over Affluence
         </p>
         <p className="mx-auto mt-3 max-w-xl text-sm font-medium text-white/90">
-          WIA1006 / WID3006 Machine Learning · Group Assignment
+          WIA1006 Machine Learning · Group Assignment
         </p>
       </header>
 

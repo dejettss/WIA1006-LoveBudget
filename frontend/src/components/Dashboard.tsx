@@ -395,7 +395,7 @@ export default function Dashboard() {
         </summary>
         <div className="mt-2 space-y-1 text-[#9D174D]">
           <p>
-            <b>Model:</b> Tuned XGBoost (35 features) — WIA1006/WID3006 Group 10
+            <b>Model:</b> Tuned XGBoost (35 features) — WIA1006 Group 10
             assignment, exported to ONNX and run client-side.
           </p>
           <p>
